@@ -215,8 +215,16 @@
 
   IF (lasym) THEN
      ! CONVERT TO REPRESENTATION WITH RBS(m=1) = ZBC(m=1)
-
-     delta = ATAN2(rbs(0,1) - zbc(0,1), rbc(0,1) + zbs(0,1))
+     ! flip_theta, applied below to a boundary whose m=1 determinant is
+     ! negative, negates ZBC(m=1) and not RBS(m=1), so that boundary takes the
+     ! angle that gives the representation after the flip.
+     orient = SUM(rbc(-ntor:ntor,1))*SUM(zbs(-ntor:ntor,1))                     &
+            - SUM(rbs(-ntor:ntor,1))*SUM(zbc(-ntor:ntor,1))
+     IF (orient .lt. zero) THEN
+        delta = -ATAN2(rbs(0,1) + zbc(0,1), zbs(0,1) - rbc(0,1))
+     ELSE
+        delta = ATAN2(rbs(0,1) - zbc(0,1), rbc(0,1) + zbs(0,1))
+     END IF
      IF (delta .ne. zero) THEN
        DO m = 0,mpol1
          DO n = -ntor,ntor
